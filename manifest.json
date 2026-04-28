@@ -1,0 +1,43 @@
+{
+  "name": "money.log — 家計管理",
+  "short_name": "money.log",
+  "description": "現金・キャッシュレス・ポイント対応の個人財務管理アプリ",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f7f5f0",
+  "theme_color": "#1a1916",
+  "lang": "ja",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "支出を記録",
+      "short_name": "支出",
+      "description": "素早く支出を記録する",
+      "url": "/?page=quick-add",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "残高確認",
+      "short_name": "残高",
+      "description": "現在の残高を確認する",
+      "url": "/?page=dashboard",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
