@@ -780,7 +780,9 @@ function settleCard() {
 
 // ===== ACCOUNTS =====
 function renderAccounts() {
-  const {accounts,unpaid}=load();
+  const {accounts: rawAccounts,unpaid}=load();
+  const TYPE_ORDER={cash:0,bank:1,emoney:2,point:3,card:4};
+  const accounts=[...rawAccounts].sort((a,b)=>(TYPE_ORDER[a.type]??9)-(TYPE_ORDER[b.type]??9));
   let h='';
   if (!accounts.length) h='<div class="empty"><div class="empty-i">💳</div><div class="empty-t">口座を追加してください</div></div>';
   else accounts.forEach(a=>{
