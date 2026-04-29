@@ -748,17 +748,20 @@ body {
 <!-- TOAST -->
 <div id="toast"></div>
 
-<script type="module">
+<script>
 // =====================================================
 // IMPORTS — Supabase
 // =====================================================
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
 
 // ★ ここを自分の値に書き換え ★
 const SUPABASE_URL = 'https://keezkrcwsscpbphiqdrx.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtlZXprcmN3c3NjcGJwaGlxZHJ4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzM0NjA4OSwiZXhwIjoyMDkyOTIyMDg5fQ.paU6QxRKnXPR2nhvdeyjI1iexhDKQzlRpm2r7wsPOUQ';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let supabase;
+(async () => {
+  const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+  supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // =====================================================
 // STATE
@@ -1549,9 +1552,10 @@ window.addEventListener('online', async () => {
 });
 
 // PWA Service Worker 登録
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(e=>console.warn('SW registration failed:', e));
-}
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(e=>console.warn('SW registration failed:', e));
+  }
+})();
 </script>
 </body>
 </html>
