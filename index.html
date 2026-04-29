@@ -219,6 +219,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f3ee;color:#1a1916;min-
       <button class="si" onclick="nav('quick-add',this)"><span class="si-icon">＋</span>取引入力</button>
       <button class="si" onclick="nav('accounts',this)"><span class="si-icon">💳</span>口座管理</button>
       <button class="si" onclick="nav('schedule',this)"><span class="si-icon">📅</span>入金予定</button>
+      <button class="si" onclick="nav('fixed',this)"><span class="si-icon">🔁</span>固定引き落とし</button>
       <button class="si" onclick="nav('calendar',this)"><span class="si-icon">🗓</span>カレンダー</button>
       <button class="si" onclick="nav('history',this)"><span class="si-icon">📋</span>履歴</button>
     </nav>
@@ -309,8 +310,16 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f3ee;color:#1a1916;min-
         <div class="cal-leg">
           <span><span class="cld" style="background:var(--green)"></span>入金</span>
           <span><span class="cld" style="background:var(--red)"></span>支出</span>
-          <span><span class="cld" style="background:var(--accent)"></span>引き落とし</span>
+          <span><span class="cld" style="background:var(--accent)"></span>引き落とし・固定費</span>
         </div>
+      </div>
+    </div>
+
+    <!-- FIXED COSTS -->
+    <div class="page" id="page-fixed">
+      <div class="card">
+        <div class="sh"><div class="sh-title">固定引き落とし一覧</div><button class="btn btn-sm btn-p" onclick="openFixedSheet()">＋ 追加</button></div>
+        <div id="fixed-list"></div>
       </div>
     </div>
 
@@ -424,6 +433,33 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f3ee;color:#1a1916;min-
   </div>
 </div>
 
+<!-- SHEET: Fixed Cost -->
+<div class="sh-ov" id="fixed-sheet">
+  <div class="sh-box">
+    <div class="sh-handle"></div>
+    <div class="sh-head"><div class="sh-title" id="fixed-sheet-title">固定引き落としを追加</div><button class="sh-close" onclick="closeSheet('fixed-sheet')">✕</button></div>
+    <div class="sh-body">
+      <div class="fg"><label class="fl">項目名</label><input type="text" class="fi" id="fx-name" placeholder="家賃、Spotify、電気代…"></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">毎月の引き落とし日</label><input type="number" class="fi" id="fx-day" placeholder="27" min="1" max="31" inputmode="numeric"></div>
+        <div class="fg"><label class="fl">引き落とし口座</label><select class="fi" id="fx-account"></select></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">金額 (円・未確定なら空白)</label><input type="number" class="fi" id="fx-amount" placeholder="未確定でもOK" inputmode="numeric"></div>
+        <div class="fg"><label class="fl">カテゴリ</label>
+          <select class="fi" id="fx-category">
+            <option>住居費</option><option>通信費</option><option>娯楽</option><option>光熱費</option>
+            <option>保険</option><option>教育</option><option>その他</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">メモ</label><input type="text" class="fi" id="fx-memo" placeholder="備考"></div>
+      <input type="hidden" id="fx-edit-id">
+      <button class="btn btn-p btn-full" onclick="saveFixed()">登録</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -437,6 +473,7 @@ const load = () => ({
   transactions: DB.get('ml_transactions', []),
   schedules: DB.get('ml_schedules', []),
   unpaid: DB.get('ml_unpaid', []),
+  fixedCosts: DB.get('ml_fixedCosts', []),
 });
 const save = (k,v) => DB.set('ml_'+k, v);
 
@@ -485,6 +522,7 @@ function renderPage(p) {
     case 'schedule': renderSchedule(); break;
     case 'calendar': renderCalendar(); break;
     case 'history': renderHistory(); break;
+    case 'fixed': renderFixed(); break;
   }
 }
 
@@ -925,7 +963,7 @@ function deleteSchedule(id) {
 // ===== CALENDAR =====
 let calY=new Date().getFullYear(), calM=new Date().getMonth();
 function renderCalendar() {
-  const {transactions,schedules,unpaid}=load();
+  const {transactions,schedules,unpaid,fixedCosts=[]}=load();
   document.getElementById('cal-label').textContent=`${calY}年 ${calM+1}月`;
   se('cal-head',['日','月','火','水','木','金','土'].map(d=>`<div>${d}</div>`).join(''));
   const first=new Date(calY,calM,1), last=new Date(calY,calM+1,0), tds=today();
@@ -938,11 +976,14 @@ function renderCalendar() {
     const exp=transactions.filter(t=>t.date===ds&&t.type==='expense').reduce((s,t)=>s+t.amount,0);
     const hasSch=schedules.some(s=>s.date===ds);
     const hasD=unpaid.some(u=>u.debitDate===ds);
+    const fixedDay=parseInt(ds.slice(8));
+    const fixedOnDay=fixedCosts.filter(f=>f.day===fixedDay);
     let ev='';
     if(inc>0) ev+=`<div class="cal-ev ev-i">+${fmt(inc)}</div>`;
     if(exp>0) ev+=`<div class="cal-ev ev-e">-${fmt(exp)}</div>`;
     if(hasSch) ev+=`<div class="cal-ev ev-i">入金</div>`;
     if(hasD) ev+=`<div class="cal-ev ev-c">引落</div>`;
+    fixedOnDay.forEach(f=>{ ev+=`<div class="cal-ev ev-c" title="${san(f.name)}">${san(f.name.length>4?f.name.slice(0,4)+'…':f.name)}</div>`; });
     h+=`<div class="cal-c ${isT?'today':''}"><div class="cal-n">${d}</div>${ev}</div>`;
   }
   se('cal-grid', h);
@@ -952,6 +993,79 @@ function changeMonth(delta) {
   if(calM>11){calM=0;calY++;}
   if(calM<0){calM=11;calY--;}
   renderCalendar();
+}
+
+// ===== FIXED COSTS =====
+function renderFixed() {
+  const {fixedCosts=[], accounts}=load();
+  let h='';
+  if (!fixedCosts.length) h='<div class="empty"><div class="empty-i">🔁</div><div class="empty-t">固定引き落としを追加してください</div></div>';
+  else {
+    const sorted=[...fixedCosts].sort((a,b)=>a.day-b.day);
+    sorted.forEach(f=>{
+      const acc=accounts.find(a=>a.id===f.accountId);
+      const amtStr=f.amount?fmt(f.amount):'金額未確定';
+      h+=`<div class="li">
+        <div class="li-icon">🔁</div>
+        <div class="li-body">
+          <div class="li-name">${san(f.name)}</div>
+          <div class="li-sub">毎月${f.day}日${acc?' ・'+san(acc.name):''} ・${san(f.category||'')}</div>
+          ${f.memo?`<div class="li-sub">${san(f.memo)}</div>`:''}
+        </div>
+        <div class="li-right" style="display:flex;align-items:center;gap:7px">
+          <div class="li-amt minus">${amtStr}</div>
+          <button class="btn btn-sm" onclick="editFixed('${f.id}')">編集</button>
+          <button class="btn btn-sm btn-d" onclick="deleteFixed('${f.id}')">×</button>
+        </div>
+      </div>`;
+    });
+  }
+  se('fixed-list', h);
+}
+
+function openFixedSheet() {
+  const {accounts}=load();
+  const sel=document.getElementById('fx-account');
+  if(sel) sel.innerHTML=accounts.map(a=>`<option value="${a.id}">${san(a.name)}</option>`).join('');
+  ['fx-name','fx-day','fx-amount','fx-memo','fx-edit-id'].forEach(id=>sv(id,''));
+  sv('fx-category','住居費');
+  document.getElementById('fixed-sheet-title').textContent='固定引き落としを追加';
+  openSheet('fixed-sheet');
+}
+
+function editFixed(id) {
+  const {fixedCosts=[], accounts}=load();
+  const f=fixedCosts.find(x=>x.id===id); if(!f) return;
+  const sel=document.getElementById('fx-account');
+  if(sel) sel.innerHTML=accounts.map(a=>`<option value="${a.id}">${san(a.name)}</option>`).join('');
+  sv('fx-name',f.name); sv('fx-day',f.day); sv('fx-amount',f.amount||'');
+  sv('fx-category',f.category); sv('fx-memo',f.memo||''); sv('fx-edit-id',f.id);
+  sv('fx-account',f.accountId);
+  document.getElementById('fixed-sheet-title').textContent='固定引き落としを編集';
+  openSheet('fixed-sheet');
+}
+
+function saveFixed() {
+  const {fixedCosts=[]}=load();
+  const name=gv('fx-name').trim(), day=parseInt(gv('fx-day')), accountId=gv('fx-account');
+  const amount=parseFloat(gv('fx-amount'))||null, category=gv('fx-category'), memo=gv('fx-memo').trim();
+  if (!name||!day||day<1||day>31) { toast('項目名と引き落とし日（1〜31）を入力してください'); return; }
+  const editId=gv('fx-edit-id');
+  if (editId) {
+    const idx=fixedCosts.findIndex(f=>f.id===editId);
+    if(idx>=0) fixedCosts[idx]={...fixedCosts[idx],name,day,accountId,amount,category,memo};
+  } else {
+    fixedCosts.push({id:uid(),name,day,accountId,amount,category,memo});
+  }
+  save('fixedCosts',fixedCosts);
+  closeSheet('fixed-sheet'); renderFixed(); toast('登録しました ✓');
+}
+
+function deleteFixed(id) {
+  if(!confirm('削除しますか？')) return;
+  const {fixedCosts=[]}=load();
+  save('fixedCosts',fixedCosts.filter(f=>f.id!==id));
+  renderFixed(); toast('削除しました');
 }
 
 // ===== HISTORY =====
