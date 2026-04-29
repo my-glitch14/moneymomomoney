@@ -511,7 +511,9 @@ function openSchSheet() { populateSchSel(); openSheet('sch-sheet'); }
 
 // ===== DASHBOARD =====
 function renderDash() {
-  const {accounts, transactions, schedules, unpaid} = load();
+  const {accounts: _rawAcc, transactions, schedules, unpaid} = load();
+  const _ORDER={cash:0,bank:1,emoney:2,point:3,card:4};
+  const accounts=[..._rawAcc].sort((a,b)=>(_ORDER[a.type]??9)-(_ORDER[b.type]??9));
   const now = new Date();
   const mo = now.toISOString().slice(0,7);
   const liquid = accounts.filter(a=>a.type!=='card').reduce((s,a)=>s+(a.balance||0),0);
