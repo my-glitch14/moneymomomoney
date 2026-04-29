@@ -311,6 +311,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f3ee;color:#1a1916;min-
           <span><span class="cld" style="background:var(--green)"></span>入金</span>
           <span><span class="cld" style="background:var(--red)"></span>支出</span>
           <span><span class="cld" style="background:var(--accent)"></span>引き落とし・固定費</span>
+          <span><span class="cld" style="background:#d8b4fe"></span>クレカ締め日</span>
         </div>
       </div>
     </div>
@@ -400,7 +401,12 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f3ee;color:#1a1916;min-
         <div class="fg"><label class="fl">現在残高 (円)</label><input type="number" class="fi" id="acc-balance" placeholder="0" inputmode="numeric"></div>
         <div class="fg" id="acc-limit-g" style="display:none"><label class="fl">限度額 (円)</label><input type="number" class="fi" id="acc-limit" placeholder="200000" inputmode="numeric"></div>
       </div>
-      <div class="fg" id="acc-debit-g" style="display:none"><label class="fl">毎月引き落とし日</label><input type="number" class="fi" id="acc-debit-day" placeholder="27" min="1" max="31" inputmode="numeric"></div>
+      <div id="acc-card-fields" style="display:none">
+        <div class="frow">
+          <div class="fg"><label class="fl">締め日（毎月何日）</label><input type="number" class="fi" id="acc-closing-day" placeholder="15" min="1" max="31" inputmode="numeric"></div>
+          <div class="fg"><label class="fl">引き落とし日（毎月何日）</label><input type="number" class="fi" id="acc-debit-day" placeholder="27" min="1" max="31" inputmode="numeric"></div>
+        </div>
+      </div>
       <input type="hidden" id="acc-edit-id">
       <button class="btn btn-p btn-full" onclick="saveAccount()">保存</button>
     </div>
@@ -838,6 +844,7 @@ function renderAccounts() {
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
           <span class="chip ${cc}">${ATYPE[a.type]}</span>
           <span style="font-size:13px;font-weight:500">${san(a.name)}</span>
+          ${a.closingDay?`<span style="font-size:11px;color:var(--text3)">${a.closingDay}日締</span>`:''}
           ${a.debitDay?`<span style="font-size:11px;color:var(--text3)">${a.debitDay}日引落</span>`:''}
         </div>${lbar}
       </div>
@@ -853,31 +860,32 @@ function renderAccounts() {
 function toggleCardFields() {
   const isCard=gv('acc-type')==='card';
   document.getElementById('acc-limit-g').style.display=isCard?'block':'none';
-  document.getElementById('acc-debit-g').style.display=isCard?'block':'none';
+  const cf=document.getElementById('acc-card-fields');
+  if(cf) cf.style.display=isCard?'block':'none';
 }
 function resetAccForm() {
-  ['acc-name','acc-balance','acc-limit','acc-debit-day','acc-edit-id'].forEach(id=>sv(id,''));
+  ['acc-name','acc-balance','acc-limit','acc-debit-day','acc-closing-day','acc-edit-id'].forEach(id=>sv(id,''));
   sv('acc-type','cash'); toggleCardFields();
   document.getElementById('acc-sheet-title').textContent='口座を追加';
 }
 function editAccount(id) {
   const a=load().accounts.find(x=>x.id===id); if(!a) return;
   sv('acc-name',a.name); sv('acc-type',a.type); sv('acc-balance',a.balance||0);
-  sv('acc-limit',a.limit||''); sv('acc-debit-day',a.debitDay||''); sv('acc-edit-id',id);
+  sv('acc-limit',a.limit||''); sv('acc-debit-day',a.debitDay||''); sv('acc-closing-day',a.closingDay||''); sv('acc-edit-id',id);
   document.getElementById('acc-sheet-title').textContent='口座を編集';
   toggleCardFields(); openSheet('acc-sheet');
 }
 function saveAccount() {
   const accounts=load().accounts;
   const name=gv('acc-name').trim(),type=gv('acc-type'),balance=parseFloat(gv('acc-balance'))||0;
-  const limit=parseFloat(gv('acc-limit'))||undefined,debitDay=parseInt(gv('acc-debit-day'))||undefined;
+  const limit=parseFloat(gv('acc-limit'))||undefined,debitDay=parseInt(gv('acc-debit-day'))||undefined,closingDay=parseInt(gv('acc-closing-day'))||undefined;
   if (!name) { toast('口座名を入力してください'); return; }
   const editId=gv('acc-edit-id');
   if (editId) {
     const idx=accounts.findIndex(a=>a.id===editId);
-    if(idx>=0) accounts[idx]={...accounts[idx],name,type,balance,limit:type==='card'?limit:undefined,debitDay:type==='card'?debitDay:undefined};
+    if(idx>=0) accounts[idx]={...accounts[idx],name,type,balance,limit:type==='card'?limit:undefined,debitDay:type==='card'?debitDay:undefined,closingDay:type==='card'?closingDay:undefined};
   } else {
-    accounts.push({id:uid(),name,type,balance,limit:type==='card'?limit:undefined,debitDay:type==='card'?debitDay:undefined});
+    accounts.push({id:uid(),name,type,balance,limit:type==='card'?limit:undefined,debitDay:type==='card'?debitDay:undefined,closingDay:type==='card'?closingDay:undefined});
   }
   save('accounts',accounts); closeSheet('acc-sheet'); renderAccounts(); renderDash(); toast('保存しました ✓');
 }
@@ -963,7 +971,8 @@ function deleteSchedule(id) {
 // ===== CALENDAR =====
 let calY=new Date().getFullYear(), calM=new Date().getMonth();
 function renderCalendar() {
-  const {transactions,schedules,unpaid,fixedCosts=[]}=load();
+  const {transactions,schedules,unpaid,fixedCosts=[],accounts}=load();
+  const cardAccounts=accounts.filter(a=>a.type==='card');
   document.getElementById('cal-label').textContent=`${calY}年 ${calM+1}月`;
   se('cal-head',['日','月','火','水','木','金','土'].map(d=>`<div>${d}</div>`).join(''));
   const first=new Date(calY,calM,1), last=new Date(calY,calM+1,0), tds=today();
@@ -984,6 +993,14 @@ function renderCalendar() {
     if(hasSch) ev+=`<div class="cal-ev ev-i">入金</div>`;
     if(hasD) ev+=`<div class="cal-ev ev-c">引落</div>`;
     fixedOnDay.forEach(f=>{ ev+=`<div class="cal-ev ev-c" title="${san(f.name)}">${san(f.name.length>4?f.name.slice(0,4)+'…':f.name)}</div>`; });
+    // クレカ締め日
+    cardAccounts.filter(c=>c.closingDay===fixedDay).forEach(c=>{
+      ev+=`<div class="cal-ev" style="background:#fae8ff;color:#7e22ce" title="${san(c.name)}締め">${san(c.name.length>4?c.name.slice(0,4)+'…':c.name)}締</div>`;
+    });
+    // クレカ引落日
+    cardAccounts.filter(c=>c.debitDay===fixedDay).forEach(c=>{
+      ev+=`<div class="cal-ev ev-c" title="${san(c.name)}引落">${san(c.name.length>4?c.name.slice(0,4)+'…':c.name)}引落</div>`;
+    });
     h+=`<div class="cal-c ${isT?'today':''}"><div class="cal-n">${d}</div>${ev}</div>`;
   }
   se('cal-grid', h);
