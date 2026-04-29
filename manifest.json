@@ -5,39 +5,43 @@
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#f7f5f0",
+  "background_color": "#f5f3ee",
   "theme_color": "#1a1916",
   "lang": "ja",
-  "categories": ["finance", "productivity"],
+  "categories": [
+    "finance",
+    "productivity"
+  ],
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj4KICA8cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjQyIiBmaWxsPSIjMWExOTE2Ii8+CiAgPHJlY3QgeD0iMzgiIHk9IjEwOCIgd2lkdGg9IjE4IiBoZWlnaHQ9IjUwIiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjI1KSIvPgogIDxyZWN0IHg9IjY4IiB5PSI4MCIgd2lkdGg9IjE4IiBoZWlnaHQ9Ijc4IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjUpIi8+CiAgPHJlY3QgeD0iOTgiIHk9IjUyIiB3aWR0aD0iMTgiIGhlaWdodD0iMTA2IiByeD0iNCIgZmlsbD0iIzI1NjNlYiIvPgogIDxjaXJjbGUgY3g9IjEyNCIgY3k9IjU4IiByPSIxMSIgZmlsbD0iIzI1NjNlYiIvPgogIDx0ZXh0IHg9IjMwIiB5PSIxNzIiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOSkiPm0uPC90ZXh0Pgo8L3N2Zz4=",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj4KICA8cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjQyIiBmaWxsPSIjMWExOTE2Ii8+CiAgPHJlY3QgeD0iMzgiIHk9IjEwOCIgd2lkdGg9IjE4IiBoZWlnaHQ9IjUwIiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjI1KSIvPgogIDxyZWN0IHg9IjY4IiB5PSI4MCIgd2lkdGg9IjE4IiBoZWlnaHQ9Ijc4IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjUpIi8+CiAgPHJlY3QgeD0iOTgiIHk9IjUyIiB3aWR0aD0iMTgiIGhlaWdodD0iMTA2IiByeD0iNCIgZmlsbD0iIzI1NjNlYiIvPgogIDxjaXJjbGUgY3g9IjEyNCIgY3k9IjU4IiByPSIxMSIgZmlsbD0iIzI1NjNlYiIvPgogIDx0ZXh0IHg9IjMwIiB5PSIxNzIiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOSkiPm0uPC90ZXh0Pgo8L3N2Zz4=",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj4KICA8cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjQyIiBmaWxsPSIjMWExOTE2Ii8+CiAgPHJlY3QgeD0iMzgiIHk9IjEwOCIgd2lkdGg9IjE4IiBoZWlnaHQ9IjUwIiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjI1KSIvPgogIDxyZWN0IHg9IjY4IiB5PSI4MCIgd2lkdGg9IjE4IiBoZWlnaHQ9Ijc4IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjUpIi8+CiAgPHJlY3QgeD0iOTgiIHk9IjUyIiB3aWR0aD0iMTgiIGhlaWdodD0iMTA2IiByeD0iNCIgZmlsbD0iIzI1NjNlYiIvPgogIDxjaXJjbGUgY3g9IjEyNCIgY3k9IjU4IiByPSIxMSIgZmlsbD0iIzI1NjNlYiIvPgogIDx0ZXh0IHg9IjMwIiB5PSIxNzIiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOSkiPm0uPC90ZXh0Pgo8L3N2Zz4=",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ],
-  "screenshots": [],
   "shortcuts": [
     {
       "name": "支出を記録",
       "short_name": "支出",
-      "description": "素早く支出を記録する",
-      "url": "/?page=quick-add",
-      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+      "url": "/?page=quick-add"
     },
     {
       "name": "残高確認",
       "short_name": "残高",
-      "description": "現在の残高を確認する",
-      "url": "/?page=dashboard",
-      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+      "url": "/?page=dashboard"
     }
   ]
 }
